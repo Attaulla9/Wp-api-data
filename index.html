@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset='utf-8'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <title>Page Title</title>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+
+    <!-- jQuery library -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+    <!-- Popper JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+
+    <!-- Latest compiled JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+
+    <!--Data tabel-->
+
+
+    <script src="https://rawcdn.githack.com/FuriosoJack/TableHTMLExport/v2.0.0/src/tableHTMLExport.js"></script>
+
+
+
+</head>
+
+<body>
+    <div class="container">
+
+        <!-- Modal start -->
+        <div class="modal fade" id="datagetmodal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
+            aria-hidden="true" data-backdrop="static" data-keyboard="false">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <input type="text" class="form-control getURL" placeholder="Enter the URL">
+                        </div>
+                        <div class="form-group">
+                            <input type="text" class="form-control getNumber" placeholder="Enter Number of Post/pages">
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-primary text-center getdata">Get</button>
+
+                </div>
+            </div>
+        </div>
+        <!-- Modal start -->
+
+        <div class="showHTML d-none">
+            <button type="button" class="btn btn-primary export">Export</button>
+            <table class="table table-hover" id="tableCompany">
+                <thead>
+                    <tr>
+                        <th scope="col">Title</th>
+                        <th scope="col">URL</th>
+                    </tr>
+                </thead>
+                <tbody class="tbody">
+
+                </tbody>
+            </table>
+
+        </div>
+    </div>
+    <script>
+        var html = '';
+        $("#datagetmodal").modal();
+        $(".getdata").click(function () {
+            var Fetchurl = $(".getURL").val();
+            var NumOfPage = $(".getNumber").val();
+            if (Fetchurl == '' || NumOfPage == '') {
+                $(".getdata").text("Enter URL and Number of post/pages")
+                setTimeout(function () {
+                    $(".getdata").text("Get")
+                }, 2000)
+            } else {
+                var completeURL = Fetchurl + '/wp-json/wp/v2/posts/?per_page=' + NumOfPage
+                console.log(completeURL)
+                $.ajax({
+                    url: completeURL,
+                    type: 'GET',
+                    success: function (data) {
+                        $("#datagetmodal").modal('hide');
+                        $(".showHTML").removeClass('d-none')
+                        data.forEach(function (value) {
+                            console.log(value.title.rendered);
+                            html += '<tr>';
+                            html += '<td>' + value.title.rendered + '</td>';
+                            html += '<td>' + value.link + '</td>';
+                            html += '<tr>';
+                        });
+                        $(".tbody").append(html)
+                    }
+                });
+            }
+        })
+        $(".export").click(function () {
+            $("#tableCompany").tableHTMLExport({
+                type: 'csv',
+                filename: 'Post.csv',
+                ignoreColumns: '.acciones,#primero',
+                ignoreRows: '#ultimo'
+            });
+        });
+
+    </script>
+</body>
+
+
+</html>
